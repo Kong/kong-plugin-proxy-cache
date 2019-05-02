@@ -1,4 +1,4 @@
-package = "kong-plugin-proxy-cache"
+package = "kong-proxy-cache-plugin"
 version = "1.2.0-0"
 
 source = {
