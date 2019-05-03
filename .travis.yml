@@ -45,9 +45,18 @@ env:
     - OPENRESTY=$OPENRESTY_LATEST
       CASSANDRA=$CASSANDRA_LATEST
 
+before_install:
+  - git clone https://$GITHUB_TOKEN:@github.com/Kong/kong-ci.git
+  - source kong-ci/setup_env.sh
+  - git clone https://github.com/Kong/kong.git kong-ce
+
 install:
-  - git clone --single-branch --branch chore/1.0 https://github.com/Kong/kong-ci ../kong-ci
-  - source ../kong-ci/setup_plugin_env.sh
+  - luarocks make
+  - cd kong-ce
+  - make dev
+  - cp -r spec/fixtures ../spec
+  - createuser --createdb kong
+  - createdb -U kong kong_tests
 
 script:
   - eval $LUACHECK_CMD
