@@ -59,8 +59,7 @@ install:
   - createdb -U kong kong_tests
 
 script:
-  - eval $LUACHECK_CMD
-  - eval $BUSTED_CMD
+  - bin/busted $BUSTED_ARGS ../spec
 
 cache:
   apt: true
