@@ -9,9 +9,6 @@ jdk:
 notifications:
   email: false
 
-services:
-  - redis-server
-
 addons:
   postgresql: "9.5"
   apt:
@@ -21,7 +18,6 @@ addons:
       - build-essential
 
 services:
-  - redis
   - docker
 
 env:
