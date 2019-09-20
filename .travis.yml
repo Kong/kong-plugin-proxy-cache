@@ -25,6 +25,7 @@ services:
 
 env:
   global:
+    - TEST_SUITE=integration
     - INSTALL_CACHE=$HOME/install-cache
     - DOWNLOAD_ROOT=$HOME/download-root
     - PLUGIN_NAME=proxy-cache
@@ -44,7 +45,7 @@ install:
   - cp -r kong-source/spec/fixtures spec
 
 script:
-  - pushd kong-source && bin/busted $BUSTED_ARGS spec && popd
+  - pushd kong-source && bin/busted $BUSTED_ARGS ../spec && popd
 
 cache:
   apt: true
