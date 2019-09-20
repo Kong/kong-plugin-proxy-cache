@@ -32,6 +32,8 @@ env:
     - KONG_PLUGINS=bundled,$PLUGIN_NAME
     - KONG_TEST_PLUGINS=$KONG_PLUGINS
     - TEST_FILE_PATH=$TRAVIS_BUILD_DIR/spec
+    - KONG_TEST_PG_DATABASE=travis
+    - KONG_TEST_PG_USER=postgres
     - JOBS=2
   matrix:
     - KONG_TEST_DATABASE=cassandra CASSANDRA=2.2.12 KONG=master BUSTED_ARGS="-o gtest -v --exclude-tags=flaky,ipv6,postgres,off"
