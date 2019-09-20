@@ -39,9 +39,6 @@ env:
     - KONG_TEST_DATABASE=cassandra CASSANDRA=2.2.12 KONG=master BUSTED_ARGS="-o gtest -v --exclude-tags=flaky,ipv6,postgres,off"
     - KONG_TEST_DATABASE=cassandra CASSANDRA=3.9 KONG=master BUSTED_ARGS="-o gtest -v --exclude-tags=flaky,ipv6,postgres,off"
     - KONG_TEST_DATABASE=postgres POSTGRES=9.5 KONG=master BUSTED_ARGS="-o gtest -v --exclude-tags=flaky,ipv6,cassandra,off"
-matrix:
-  allow_failures:
-    - env: KONG_TEST_DATABASE=postgres POSTGRES=9.5 KONG=master BUSTED_ARGS="-o gtest -v --exclude-tags=flaky,ipv6,cassandra,off"
 
 install:
   - make setup-ci
