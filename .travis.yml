@@ -46,6 +46,17 @@ install:
   - pushd kong-source && make dev && popd
   - cp -r kong-source/spec/fixtures spec
 
+stages:
+  - lint
+  - test
+
+jobs:
+  include:
+    - stage: lint
+      env:
+        - TEST_SUITE=lint
+      script: luacheck kong/
+
 script:
   - pushd kong-source && bin/busted $BUSTED_ARGS ../spec && popd
 
