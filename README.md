@@ -4,9 +4,22 @@
 
 HTTP Proxy Caching for Kong
 
+
 ## Synopsis
 
 This plugin provides a reverse proxy cache implementation for Kong. It caches response entities based on configurable response code and content type, as well as request method. It can cache per-Consumer or per-API. Cache entities are stored for a configurable period of time, after which subsequent requests to the same resource will re-fetch and re-store the resource. Cache entities can also be forcefully purged via the Admin API prior to their expiration time.
+
+## Terminology
+
+- plugin: a plugin executing actions inside Kong before or after a request has been proxied to the upstream API.
+- Service: the Kong entity representing an external upstream API or microservice.
+- Route: the Kong entity representing a way to map downstream requests to upstream services.
+- Consumer: an entity that makes requests for Kong to proxy; it represents either a user or an external service.
+- Credential: a unique string associated with a Consumer, also referred to as an API key.
+- Upstream service: this refers to your own API/service sitting behind Kong, to which client requests are forwarded.
+
+
+
 
 ## Configuration
 
