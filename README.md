@@ -11,7 +11,7 @@ This plugin provides a reverse proxy cache implementation for Kong. It caches re
 
 ## Terminology
 
-- `plugin`: a plugin executing actions inside Kong before or after a request has been proxied to the upstream API.
+- `Plugin`: a plugin executing actions inside Kong before or after a request has been proxied to the upstream API.
 - `Service`: the Kong entity representing an external upstream API or microservice.
 - `Route`: the Kong entity representing a way to map downstream requests to upstream services.
 - `Consumer`: an entity that makes requests for Kong to proxy; it represents either a user or an external service.
