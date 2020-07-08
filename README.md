@@ -22,6 +22,104 @@ This plugin provides a reverse proxy cache implementation for Kong. It caches re
 
 
 ## Configuration
+This plugin is compatible with DB-less mode.
+
+### Enabling the plugin on a Service
+
+- With a Database
+
+ Configure this plugin on a Service by making the following request:
+
+```bash
+$ curl -X POST http://kong:8001/services/{service}/plugins \
+    --data "name=proxy-cache"  \
+    --data "config.cache_ttl=300" \
+    --data "config.strategy=memory"
+ ```   
+ 
+- Without a Database
+
+Configure this plugin on a Service by adding this section to your declarative configuration file:
+
+```bash
+plugins:
+- name: proxy-cache
+  service: {service}
+  config: 
+    cache_ttl: 300
+    strategy: memory
+ ```  
+ 
+`{service}` is the `id` or `name` of the Service that this plugin configuration will target.
+
+
+### Enabling the plugin on a Route
+
+- With a Database
+
+ Configure this plugin on a Route with:
+
+```bash
+curl -X POST http://kong:8001/routes/{route}/plugins \
+    --data "name=proxy-cache"  \
+    --data "config.cache_ttl=300" \
+    --data "config.strategy=memory"
+ ```   
+ 
+- Without a Database
+
+Configure this plugin on a Route by adding this section to your declarative configuration file:
+
+```bash
+plugins:
+- name: proxy-cache
+  route: {route}
+  config: 
+    cache_ttl: 300
+    strategy: memory
+
+ ```  
+ 
+`{route}` is the `id` or `name` of the Route that this plugin configuration will target.
+
+
+### Enabling the plugin on a Consumer
+
+- With a Database
+
+ Configure this plugin on a Consumer with:
+
+```bash
+curl -X POST http://kong:8001/consumers/{consumer}/plugins \
+    --data "name=proxy-cache"  \
+    --data "config.cache_ttl=300" \
+    --data "config.strategy=memory"
+ ```    
+ 
+- Without a Database
+
+Configure this plugin on a Consumer by adding this section to your declarative configuration file:
+```bash
+plugins:
+- name: proxy-cache
+  consumer: {consumer}
+  config: 
+    cache_ttl: 300
+    strategy: memory
+
+ ``` 
+ 
+ 
+`{consumer}` is the `id` or `username` of the Consumer that this plugin configuration will target.
+
+You can combine `consumer.id` and `service.id` in the same request, to further narrow the scope of the plugin.
+
+
+### Global plugins
+
+ A plugin which is not associated to any Service, Route, or Consumer (or API, if you are using an older version of Kong) is considered "global", and will be run on every request. Read the Plugin Reference and the Plugin Precedence sections for more information.
+ - Using a database, all plugins can be configured using the `http://kong:8001/plugins/` endpoint.
+ - Without a database, all plugins can be configured via the `plugins:` entry on the declarative configuration file.
 
 Configuring the plugin is straightforward, you can add it on top of an existing API by executing the following request on your Kong server:
 
