@@ -16,7 +16,7 @@ This plugin provides a reverse proxy cache implementation for Kong. It caches re
 - `Route`: the Kong entity representing a way to map downstream requests to upstream services.
 - `Consumer`: an entity that makes requests for Kong to proxy; it represents either a user or an external service.
 - `Credential`: a unique string associated with a Consumer, also referred to as an API key.
-- `Upstream service`: this refers to your own API/service sitting behind Kong, to which client requests are forwarded.
+- `Upstream`: this refers to your own API/service sitting behind Kong, to which client requests are forwarded.
 
 
 
