@@ -105,17 +105,7 @@ function _M:store(key, req_obj, req_ttl)
     return nil, "key must be a string"
   end
 
-  -- encode request table representation as JSON
-  local req_json = cjson.encode(req_obj)
-  if not req_json then
-    return nil, "could not encode request object"
-  end
-
-  if err then
-      kong.log.err("failed to commit increment pipeline in Redis: ", err)
-      return nil, err
-  end
-  timer_at(0, delayed_store, self.opts, key, req_obj, ttl)
+  local ok, err = timer_at(0, delayed_store, self.opts, key, req_obj, ttl)
   if not ok then
       kong.log.err("failed to set Redis keepalive: ", err)
       return nil, err
@@ -136,18 +126,12 @@ function _M:fetch(key)
   if not red then
       return nil, err
   end
-  local req_json, err = red:hgetall(key)
-  if not req_json then
+  local req_obj, err = red:hgetall(key)
+  if not req_obj then
     return nil, err
   end
-  if next(req_json) == nil then
+  if next(req_obj) == nil then
     return nil, "request object not in cache"
-  end
-
-  -- decode object from JSON to table
-  local req_obj = cjson.decode(req_json)
-  if not req_obj then
-    return nil, "could not decode request object"
   end
 
   return req_obj
