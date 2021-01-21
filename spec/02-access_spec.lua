@@ -32,7 +32,7 @@ do
       port = 6379,
     },
   }
-  for _, policy in ipairs({"memory", "redis"}) do
+  for _, policy in ipairs(strategies.STRATEGY_TYPES) do
     describe("proxy-cache access with policy: " .. policy, function()
       local client, admin_client
       --local cache_key
