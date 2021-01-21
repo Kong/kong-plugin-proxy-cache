@@ -11,6 +11,16 @@ local function strategy_wait_until(strategy, func, timeout)
   end
 end
 
+local function strategy_wait_appear(policy, strategy, cache_key)
+    strategy_wait_until(policy, function()
+        return strategy:fetch(cache_key) ~= nil
+    end, TIMEOUT)
+end
+local function strategy_wait_disappear(policy, strategy, cache_key)
+    strategy_wait_until(policy, function()
+        return strategy:fetch(cache_key) == nil
+    end, TIMEOUT)
+end
 
 do
   local configs = {
@@ -361,9 +371,7 @@ do
 
         -- wait until the strategy expires the object for the given
         -- cache key
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) == nil
-        end, TIMEOUT)
+        strategy_wait_disappear(policy, strategy, cache_key)
 
         -- and go through the cycle again
         res = assert(client:send {
@@ -379,9 +387,7 @@ do
         cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -408,9 +414,7 @@ do
         cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -451,9 +455,7 @@ do
         cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
         res = assert(client:send {
           method = "GET",
           path = "/get",
@@ -480,9 +482,7 @@ do
         local cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -501,9 +501,7 @@ do
         end
 
         -- give ourselves time to expire
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) == nil
-        end, TIMEOUT)
+        strategy_wait_disappear(policy, strategy, cache_key)
 
         -- and go through the cycle again
         res = assert(client:send {
@@ -518,9 +516,7 @@ do
         assert.same("Miss", res.headers["X-Cache-Status"])
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -631,9 +627,7 @@ do
           local cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "GET",
@@ -686,9 +680,7 @@ do
           local cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "GET",
@@ -754,9 +746,7 @@ do
         local cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -871,9 +861,7 @@ do
         assert.equals(32, #cache_key1)
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key1) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key1)
 
         res = assert(client:send {
           method = "GET",
@@ -915,9 +903,7 @@ do
         local cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -943,9 +929,8 @@ do
         cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
+
         res = assert(client:send {
           method = "GET",
           path = "/get?a&b",
@@ -972,9 +957,7 @@ do
         local cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -1003,9 +986,7 @@ do
         local cache_key = res.headers["X-Cache-Key"]
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key)
 
         res = assert(client:send {
           method = "GET",
@@ -1059,9 +1040,7 @@ do
           local cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "GET",
@@ -1090,9 +1069,7 @@ do
           cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "GET",
@@ -1175,9 +1152,7 @@ do
           local cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "POST",
@@ -1209,9 +1184,7 @@ do
           local cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "GET",
@@ -1243,9 +1216,7 @@ do
           local cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "GET",
@@ -1275,9 +1246,7 @@ do
           local cache_key = res.headers["X-Cache-Key"]
 
           -- wait until the underlying strategy converges
-          strategy_wait_until(policy, function()
-            return strategy:fetch(cache_key) ~= nil
-          end, TIMEOUT)
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(client:send {
             method = "GET",
