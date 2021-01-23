@@ -4,16 +4,20 @@ local redis = require "resty.redis"
 
 local next      = next
 local timer_at  = ngx.timer.at
+local ngx_null = ngx.null
 
 local type         = type
 local setmetatable = setmetatable
 
+local cjson_decode = cjson.decode
+local cjson_encode = cjson.encode
 
 local _M = {}
 
 local function is_present(str)
-  return str and str ~= "" and str ~= ngx.null
+  return str and str ~= "" and str ~= ngx_null
 end
+
 local function get_redis_connection(conf)
   local red = redis:new()
   red:set_timeout(2000)
@@ -55,7 +59,7 @@ end
 
 function _M.new(opts)
   local conf = utils.deep_copy(opts)
-  if type(conf.database) ~= "Number" or conf.database == ngx.null then
+  if type(conf.database) ~= "Number" or conf.database == ngx_null then
     conf.database = 0
   end
   local self = {
@@ -89,14 +93,14 @@ local function delayed_store(premature, opts, key, req_obj, ttl)
 
   red:init_pipeline()
   red:hmset(key, req_obj)
-  red:hmset(key, "headers", cjson.encode(req_obj.headers))
+  red:hmset(key, "headers", cjson_encode(req_obj.headers))
   red:expire(key, ttl)
   local _, err = red:commit_pipeline()
   if err then
     kong.log.err("failed to store: ", err)
     return
   end
-  local ok, err = red:set_keepalive(10000, 100)
+  red:set_keepalive()
 end
 
 function _M:store(key, req_obj, req_ttl)
@@ -136,7 +140,7 @@ function _M:fetch(key)
     return nil, "request object not in cache"
   end
   req_obj = red:array_to_hash(req_obj)
-  req_obj.headers = cjson.decode(req_obj.headers)
+  req_obj.headers = cjson_decode(req_obj.headers)
   for _, k in ipairs({"body_len", "status", "timestamp", "ttl", "version"}) do
       if req_obj[k] ~= nil then
           req_obj[k] = tonumber(req_obj[k])
