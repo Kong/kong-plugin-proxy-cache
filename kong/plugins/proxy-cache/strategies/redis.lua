@@ -164,7 +164,7 @@ function _M:purge(key)
   if not red then
       return nil, err
   end
-  red.del(key)
+  red.del(red, key)
   red:set_keepalive()
   return true
 end

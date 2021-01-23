@@ -1,7 +1,10 @@
 local helpers = require "spec.helpers"
+local myhelpers = require "spec.myhelpers"
 local strategies = require("kong.plugins.proxy-cache.strategies")
 local cjson = require "cjson"
 
+local strategy_wait_disappear = myhelpers.wait_disappear
+local strategy_wait_appear = myhelpers.wait_appear
 
 local configs = {
   memory = {
@@ -74,6 +77,7 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
 
       admin_client = helpers.admin_client()
       proxy_client = helpers.proxy_client()
+      strategy:flush(true)
     end)
 
     teardown(function()
@@ -224,6 +228,7 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
           assert.matches("^[%w%d]+$", cache_key1)
           assert.equals(32, #cache_key1)
           cache_key = cache_key1
+          strategy_wait_appear(policy, strategy, cache_key)
 
           res = assert(proxy_client:send {
             method = "GET",
@@ -245,6 +250,7 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
           })
           assert.res_status(204, res)
 
+          strategy_wait_disappear(policy, strategy, cache_key)
           local res = assert(proxy_client:send {
             method = "GET",
             path = "/get",
@@ -262,6 +268,7 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
             path = "/proxy-cache/" .. cache_key,
           })
           assert.res_status(204, res)
+          strategy_wait_disappear(policy, strategy, cache_key)
 
           local res = assert(proxy_client:send {
             method = "GET",
@@ -273,6 +280,8 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
 
           assert.res_status(200, res)
           assert.same("Miss", res.headers["X-Cache-Status"])
+          cache_key = res.headers["X-Cache-Key"]
+          strategy_wait_appear(policy, strategy, cache_key1)
         end)
         it("purge all the cache entries", function()
           -- make a `Hit` request to `route-1`
@@ -285,6 +294,7 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
           })
           assert.res_status(200, res)
           assert.same("Hit", res.headers["X-Cache-Status"])
+          cache_key = res.headers["X-Cache-Key"]
 
           -- make a `Miss` request to `route-2`
           local res = assert(proxy_client:send {
@@ -304,6 +314,7 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
           assert.equals(32, #cache_key1)
 
           -- make a `Hit` request to `route-1`
+          strategy_wait_appear(policy, strategy, cache_key1)
           res = assert(proxy_client:send {
             method = "GET",
             path = "/get",
@@ -324,6 +335,7 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
           })
           assert.res_status(204, res)
 
+          strategy_wait_disappear(policy, strategy, cache_key1)
           local res = assert(proxy_client:send {
             method = "GET",
             path = "/get",
@@ -407,6 +419,8 @@ for _, policy in ipairs(strategies.STRATEGY_TYPES) do
             }
           })
           assert.res_status(200, res)
+          cache_key = res.headers["X-Cache-Key"]
+          strategy_wait_appear(policy, strategy, cache_key)
 
           local res = assert(admin_client:send {
             method = "GET",
