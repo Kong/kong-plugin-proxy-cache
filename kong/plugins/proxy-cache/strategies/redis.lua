@@ -46,6 +46,7 @@ local function get_redis_connection(conf)
       -- Only call select first time, since we know the connection is shared
       -- between instances that use the same redis database
 
+      kong.log.debug("use database " .. conf.database)
       local ok, err = red:select(conf.database)
       if not ok then
         kong.log.err("failed to change Redis database: ", err)
@@ -59,7 +60,7 @@ end
 
 function _M.new(opts)
   local conf = utils.deep_copy(opts)
-  if type(conf.database) ~= "Number" or conf.database == ngx_null then
+  if type(conf.database) ~= "number" or conf.database == ngx_null then
     conf.database = 0
   end
   local self = {
