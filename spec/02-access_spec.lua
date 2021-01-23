@@ -1,26 +1,10 @@
 local helpers = require "spec.helpers"
+local myhelpers = require "spec.myhelpers"
 local strategies = require("kong.plugins.proxy-cache.strategies")
 
-
-local TIMEOUT = 10 -- default timeout for non-memory strategies
-
--- use wait_until spec helper only on async strategies
-local function strategy_wait_until(strategy, func, timeout)
-  if strategies.DELAY_STRATEGY_STORE[strategy] then
-    helpers.wait_until(func, timeout)
-  end
-end
-
-local function strategy_wait_appear(policy, strategy, cache_key)
-    strategy_wait_until(policy, function()
-        return strategy:fetch(cache_key) ~= nil
-    end, TIMEOUT)
-end
-local function strategy_wait_disappear(policy, strategy, cache_key)
-    strategy_wait_until(policy, function()
-        return strategy:fetch(cache_key) == nil
-    end, TIMEOUT)
-end
+local strategy_wait_until = myhelpers.wait_until
+local strategy_wait_disappear = myhelpers.wait_disappear
+local strategy_wait_appear = myhelpers.wait_appear
 
 do
   local configs = {
@@ -310,9 +294,7 @@ do
         assert.equals(32, #cache_key1)
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key1) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key1)
 
         local res = client:send {
           method = "GET",
@@ -348,9 +330,7 @@ do
         assert.same("Miss", res.headers["X-Cache-Status"])
 
         -- wait until the underlying strategy converges
-        strategy_wait_until(policy, function()
-          return strategy:fetch(cache_key2) ~= nil
-        end, TIMEOUT)
+        strategy_wait_appear(policy, strategy, cache_key2)
 
         res = client:send {
           method = "GET",
@@ -438,7 +418,7 @@ do
         strategy_wait_until(policy, function()
           local obj = strategy:fetch(cache_key)
           return ngx.time() - obj.timestamp > obj.ttl
-        end, TIMEOUT)
+        end)
 
         -- and go through the cycle again
         res = assert(client:send {
@@ -651,7 +631,7 @@ do
           strategy_wait_until(policy, function()
             local obj = strategy:fetch(cache_key)
             return ngx.time() - obj.timestamp > 2
-          end, TIMEOUT)
+          end)
 
           res = assert(client:send {
             method = "GET",
@@ -702,7 +682,7 @@ do
           strategy_wait_until(policy, function()
             local obj = strategy:fetch(cache_key)
             return ngx.time() - obj.timestamp - obj.ttl > 2
-          end, TIMEOUT)
+          end)
 
           res = assert(client:send {
             method = "GET",
