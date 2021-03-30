@@ -358,7 +358,6 @@ function ProxyCacheHandler:access(conf)
 
   res.headers["Age"] = floor(time() - res.timestamp)
   res.headers["X-Cache-Status"] = "Hit"
-
   return kong.response.exit(res.status, res.body, res.headers)
 end
 
@@ -399,7 +398,11 @@ function ProxyCacheHandler:body_filter(conf)
   local chunk = ngx.arg[1]
   local eof   = ngx.arg[2]
 
-  proxy_cache.res_body = (proxy_cache.res_body or "") .. (chunk or "")
+  if not proxy_cache.res_body then
+    proxy_cache.res_body = {}
+  end
+
+  proxy_cache.res_body[#proxy_cache.res_body + 1] = chunk or ""
 
   if eof then
     local strategy = require(STRATEGY_PATH)({
@@ -407,11 +410,16 @@ function ProxyCacheHandler:body_filter(conf)
       strategy_opts = conf[conf.strategy],
     })
 
+    local res_body = ""
+    for _, chunk in ipairs(proxy_cache.res_body) do
+      res_body = res_body .. chunk
+    end
+
     local res = {
       status    = kong.response.get_status(),
       headers   = proxy_cache.res_headers,
-      body      = proxy_cache.res_body,
-      body_len  = #proxy_cache.res_body,
+      body      = res_body,
+      body_len  = #res_body,
       timestamp = time(),
       ttl       = proxy_cache.res_ttl,
       version   = CACHE_VERSION,
