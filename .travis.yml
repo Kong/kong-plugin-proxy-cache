@@ -4,8 +4,6 @@ jobs:
   include:
   - name: Kong CE 2.4.x
     env: KONG_VERSION=2.4.x
-  - name: Kong Enterprise 1.5.0.x
-    env: KONG_VERSION=1.5.0.x
   - name: Kong Enterprise 2.4.1.x
     env: KONG_VERSION=2.4.1.x
   - name: Kong Enterprise nightly
