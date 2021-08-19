@@ -6,6 +6,7 @@ local _M = {}
 
 _M.STRATEGY_TYPES = {
   "memory",
+  "redis",
 }
 
 -- strategies that store cache data only on the node, instead of
@@ -14,6 +15,13 @@ _M.LOCAL_DATA_STRATEGIES = {
   memory = true,
   [1]    = "memory",
 }
+
+
+_M.DELAY_STRATEGY_STORE = {
+  memory = false,
+  redis = true,
+}
+
 
 local function require_strategy(name)
   return require("kong.plugins.proxy-cache.strategies." .. name)
